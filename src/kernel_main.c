@@ -6,6 +6,21 @@ struct list_element {
     int data;  // Example data
 };
 
+//system timer definition with timer address
+#define TIMER_COUNT_REGISTER 0xFE003004
+
+// get current system count in microseconds
+unsigned long get_timer_count() {
+    return*(volatile unsigned long *)TIMER_COUNT_REGISTER;
+}
+
+//wait 1 second
+void wait_1s(){
+    unsigned long start_time = get_timer_count();
+    while(get_timer_count() - start_time < 1000000){
+    } 
+}
+
 // Function to clear the .bss segment
 void clear_bss(void) {
     extern int __bss_start, __bss_end;
@@ -32,6 +47,18 @@ void list_remove(struct list_element **list_head, struct list_element *element_t
 void kernel_main() {
     // Clear the .bss segment
     clear_bss();
+
+    // Task 1
+    unsigned long initial_timer_value = get_timer_count();
+    esp_printf(putc, "Initial Timer Count: %lu\n", initial_timer_value);
+
+    // Task 2
+    esp_printf(putc, "Waiting for 1 ms...\n");
+    wait_1ms();
+
+    // Print the timer value after 1 second wait
+    unsigned long after_wait_timer_value = get_timer_count();
+    esp_printf(putc, "Timer Count After 1s Wait: %lu\n", after_wait_timer_value);
 
     // Create list elements
     struct list_element element1 = { .next = NULL, .data = 10 };
